@@ -1,13 +1,20 @@
 global:
-  scrape_interval:     15s
-  evaluation_interval: 15s
+  scrape_interval:     15s  # Interval between scrapes
+  evaluation_interval: 15s  # Interval between rule evaluations
 
 scrape_configs:
   - job_name: prometheus
     static_configs:
       - targets: ['localhost:9090']
+
   - job_name: golang
-    metrics_path: /prometheus
+    metrics_path: /prometheus  # Path to scrape metrics from the Go app
     static_configs:
       - targets:
-          - golang:9000
+          - golang:9000  # Assuming golang is a service in your Docker Compose file
+
+    # Optional relabel_configs for service discovery in containers
+    relabel_configs:
+      - source_labels: [__meta_dns_name]
+        target_label: job
+        replacement: golang  # Label the job appropriately for better organization
