@@ -1,0 +1,32 @@
+version: '3.9' # Use the latest supported Compose file version
+
+services:
+  golang:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: golang_app
+    restart: always
+    ports:
+      - '9000:9000'
+    depends_on:
+      - prometheus # Ensure Prometheus service is started before the Go app
+
+  prometheus:
+    image: prom/prometheus:latest # Use the latest stable version of Prometheus
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./prometheus/:/etc/prometheus/ # Custom Prometheus configuration
+      - prometheus_data:/prometheus # Persistent data storage for Prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - '9090:9090'
+
+volumes:
+  prometheus_data:
+    driver: local # Ensure a persistent storage driver
