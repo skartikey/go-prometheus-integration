@@ -19,7 +19,7 @@ services:
       timeout: 10s
 
   prometheus:
-    image: prom/prometheus:v2.40.0 # Specify a stable version of Prometheus
+    image: prom/prometheus
     container_name: prometheus
     restart: always
     volumes:
@@ -33,14 +33,14 @@ services:
     ports:
       - '9090:9090'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/healthy"]
+      test: ["CMD", "wget", "--spider", "http://localhost:9090/-/healthy"]
       interval: 30s
       retries: 3
       start_period: 30s
       timeout: 10s
 
   grafana:
-    image: grafana/grafana # Specify a stable version of Grafana
+    image: grafana/grafana
     container_name: grafana
     restart: always
     ports:
