@@ -81,6 +81,13 @@ func prometheusMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	// Respond with a 200 OK status and a simple JSON message.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `{"status": "healthy"}`)
+}
+
 func main() {
 	// Create a new Gorilla Mux router.
 	router := mux.NewRouter()
@@ -98,6 +105,9 @@ func main() {
 
 	// Expose Prometheus metrics at the "/prometheus" endpoint.
 	router.Handle("/prometheus", promhttp.Handler())
+
+	// Define a health check endpoint at "/health".
+	router.HandleFunc("/health", healthHandler).Methods("GET")
 
 	// Start the HTTP server on port 9000.
 	fmt.Println("Serving requests on port 9000")
