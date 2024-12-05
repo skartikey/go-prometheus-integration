@@ -17,7 +17,7 @@ COPY . .
 RUN go build -o app .
 
 # Use a smaller, more secure base image for running the application
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 # Set working directory inside the runtime container
 WORKDIR /app
