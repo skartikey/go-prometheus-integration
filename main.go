@@ -81,11 +81,14 @@ func prometheusMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+func healthHandler(w http.ResponseWriter, _ *http.Request) {
 	// Respond with a 200 OK status and a simple JSON message.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"status": "healthy"}`)
+	_, err := fmt.Fprintf(w, `{"status": "healthy"}`)
+	if err != nil {
+		return
+	}
 }
 
 func main() {
