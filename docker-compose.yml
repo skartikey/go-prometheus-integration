@@ -1,4 +1,4 @@
-version: '3.9' # Use the latest supported Compose file version
+version: '3.9'  # Use the latest supported Compose file version
 
 services:
   golang:
@@ -11,14 +11,20 @@ services:
       - '9000:9000'
     depends_on:
       - prometheus # Ensure Prometheus service is started before the Go app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]  # Replace with your actual health check endpoint
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
 
   prometheus:
-    image: prom/prometheus:latest # Use the latest stable version of Prometheus
+    image: prom/prometheus:v2.40.0 # Specify a stable version of Prometheus
     container_name: prometheus
     restart: always
     volumes:
-      - ./prometheus/:/etc/prometheus/ # Custom Prometheus configuration
-      - prometheus_data:/prometheus # Persistent data storage for Prometheus
+      - ./prometheus/:/etc/prometheus/  # Custom Prometheus configuration
+      - prometheus_data:/prometheus  # Persistent data storage for Prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -26,7 +32,33 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
       - '9090:9090'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/healthy"]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+
+  grafana:
+    image: grafana/grafana # Specify a stable version of Grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Set default admin password (if needed)
+      - GF_SERVER_ROOT_URL=http://localhost:3000  # Optional, set the root URL for Grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana  # Persistent data for Grafana
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
 
 volumes:
   prometheus_data:
-    driver: local # Ensure a persistent storage driver
+    driver: local  # Ensure a persistent storage driver
+  grafana-storage:
+    driver: local  # Persistent storage for Grafana
