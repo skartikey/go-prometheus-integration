@@ -93,6 +93,9 @@ func main() {
 		http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))),
 	)
 
+	// Serve the root URL ("/") to render the index.html or any other page in your static folder.
+	router.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir("./static/"))))
+
 	// Expose Prometheus metrics at the "/prometheus" endpoint.
 	router.Handle("/prometheus", promhttp.Handler())
 
